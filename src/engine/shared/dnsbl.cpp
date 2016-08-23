@@ -90,7 +90,9 @@ void CDnsBl::QueryCallback(void *pUserData, int Status, int Timeouts, unsigned c
 	net_addr_str(pQueryData->m_pAddr, aIpStr, sizeof(aIpStr), false);
 	dbg_msg("dnsbl", "%s blocked by DNSBL (%s)", aIpStr, Reply->txt);
 
-	pQueryData->m_DnsBl->m_pNetBan->BanAddr(pQueryData->m_pAddr, g_Config.m_DnsBlBantime*60, (const char *)Reply->txt);
+	char aBanMsg[256];
+	if (!pQueryData->m_DnsBl->m_pNetBan->IsBanned(pQueryData->m_pAddr, aBanMsg, sizeof(aBanMsg)))
+		pQueryData->m_DnsBl->m_pNetBan->BanAddr(pQueryData->m_pAddr, g_Config.m_DnsBlBantime*60, (const char *)Reply->txt);
 }
 
 void CDnsBl::CheckAndBan(NETADDR *pAddr)
@@ -100,12 +102,13 @@ void CDnsBl::CheckAndBan(NETADDR *pAddr)
 
 	for(int i = 0; i < m_NumBlServers; i++)
 	{
-		char Query[256];
-		str_format(Query, sizeof(Query), "%s.%s", aPrtStr, m_BlServers[i]);
+		char aQuery[256];
+		str_format(aQuery, sizeof(aQuery), "%s.%s", aPrtStr, m_BlServers[i]);
+		// str_format(aQuery, sizeof(aQuery), "2.0.0.127.%s", m_BlServers[i]);
 
 		static CQueryData s_QueryData = { this, pAddr };
 
-		ares_query(m_AresChannel, Query, ns_c_in, ns_t_txt, QueryCallback, (void *)&s_QueryData);
+		ares_query(m_AresChannel, aQuery, ns_c_in, ns_t_txt, QueryCallback, (void *)&s_QueryData);
 		WaitQuery(m_AresChannel);
 	}
 }
