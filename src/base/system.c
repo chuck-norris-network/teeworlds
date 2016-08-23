@@ -639,6 +639,22 @@ void net_addr_str(const NETADDR *addr, char *string, int max_length, int add_por
 		str_format(string, max_length, "unknown type %d", addr->type);
 }
 
+void net_addr_ptr(const NETADDR *addr, char *string, int max_length)
+{
+	if(addr->type == NETTYPE_IPV4)
+	{
+		str_format(string, max_length, "%d.%d.%d.%d", addr->ip[3], addr->ip[2], addr->ip[1], addr->ip[0]);
+	}
+	else if(addr->type == NETTYPE_IPV6)
+	{
+		str_format(string, max_length, "[%x:%x:%x:%x:%x:%x:%x:%x]",
+			(addr->ip[14]<<8)|addr->ip[15], (addr->ip[12]<<8)|addr->ip[13], (addr->ip[10]<<8)|addr->ip[11], (addr->ip[8]<<8)|addr->ip[9],
+			(addr->ip[6]<<8)|addr->ip[7], (addr->ip[4]<<8)|addr->ip[5], (addr->ip[2]<<8)|addr->ip[3], (addr->ip[0]<<8)|addr->ip[1]);
+	}
+	else
+		str_format(string, max_length, "unknown type %d", addr->type);
+}
+
 static int priv_net_extract(const char *hostname, char *host, int max_host, int *port)
 {
 	int i;

@@ -17,9 +17,10 @@ class CDnsBl
 	enum
 	{
 		MAX_BL_SERVERS=16,
-  };
+	};
 
 private:
+
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
 
@@ -27,24 +28,24 @@ private:
 
 	ares_channel m_AresChannel;
 
-  const char* m_BlServers[MAX_BL_SERVERS];
-  int m_NumBlServers;
+	const char* m_BlServers[MAX_BL_SERVERS];
+	int m_NumBlServers;
 
 	class IConsole *Console() const { return m_pConsole; }
 	class IStorage *Storage() const { return m_pStorage; }
 	class CNetBan *NetBan() const { return m_pNetBan; }
 
-public:
-
-  void Init(class IConsole *pConsole, class IStorage *pStorage, CNetBan *pNetBan);
-
-  static void ConAddServer(IConsole::IResult *pResult, void *pUser);
-  void AddServer(const char *pAddrStr);
-
 	static void WaitQuery(ares_channel channel);
 	static void QueryCallback(void *pUser, int Status, int Timeouts, unsigned char *pBuf, int BufferSize);
 
-  void CheckAndBan(NETADDR *pAddr);
+public:
+
+	void Init(class IConsole *pConsole, class IStorage *pStorage, CNetBan *pNetBan);
+
+	static void ConAddServer(IConsole::IResult *pResult, void *pUser);
+	void AddServer(const char *pAddrStr);
+
+	void CheckAndBan(NETADDR *pAddr);
 
 };
 

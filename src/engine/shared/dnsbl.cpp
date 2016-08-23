@@ -95,24 +95,13 @@ void CDnsBl::QueryCallback(void *pUserData, int Status, int Timeouts, unsigned c
 
 void CDnsBl::CheckAndBan(NETADDR *pAddr)
 {
-	if(pAddr->type != NETTYPE_IPV4)
-	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "only IPv4 addresses supported");
-		return;
-	}
-
-	// convert to PTR format
-	int a, b, c, d;
-	char ip[16];
-	char ptr[16];
-	net_addr_str(pAddr, ip, 16, 0);
-	sscanf(ip, "%d.%d.%d.%d", &a, &b, &c, &d);
-	sprintf(ptr, "%d.%d.%d.%d", d, c, b, a);
+	char aPrtStr[NETADDR_MAXSTRSIZE];
+	net_addr_ptr(pAddr, aPrtStr, sizeof(aPrtStr));
 
 	for(int i = 0; i < m_NumBlServers; i++)
 	{
-		char Query[128];
-		str_format(Query, sizeof(Query), "2.0.0.127.%s", m_BlServers[i]);
+		char Query[256];
+		str_format(Query, sizeof(Query), "%s.%s", aPrtStr, m_BlServers[i]);
 
 		static CQueryData s_QueryData = { this, pAddr };
 

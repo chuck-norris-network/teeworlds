@@ -545,6 +545,8 @@ int net_addr_comp(const NETADDR *a, const NETADDR *b);
 */
 void net_addr_str(const NETADDR *addr, char *string, int max_length, int add_port);
 
+void net_addr_ptr(const NETADDR *addr, char *string, int max_length);
+
 /*
 	Function: net_addr_from_str
 		Turns string into a network address.
