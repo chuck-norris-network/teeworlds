@@ -5,10 +5,11 @@
 #include <engine/console.h>
 
 #include "netban.h"
+#include "dnsbl.h"
 #include "network.h"
 
 
-bool CNetServer::Open(NETADDR BindAddr, CNetBan *pNetBan, int MaxClients, int MaxClientsPerIP, int Flags)
+bool CNetServer::Open(NETADDR BindAddr, CNetBan *pNetBan, CDnsBl *pDnsBl, int MaxClients, int MaxClientsPerIP, int Flags)
 {
 	// zero out the whole structure
 	mem_zero(this, sizeof(*this));
@@ -19,6 +20,7 @@ bool CNetServer::Open(NETADDR BindAddr, CNetBan *pNetBan, int MaxClients, int Ma
 		return false;
 
 	m_pNetBan = pNetBan;
+	m_pDnsBl = pDnsBl;
 
 	// clamp clients
 	m_MaxClients = MaxClients;
@@ -149,6 +151,9 @@ int CNetServer::Recv(CNetChunk *pChunk)
 					// client that wants to connect
 					if(!Found)
 					{
+						// check DNSBL only for new connections
+						DnsBl()->CheckAndBan(&Addr);
+
 						// only allow a specific number of players with the same ip
 						NETADDR ThisAddr = Addr, OtherAddr;
 						int FoundAddr = 1;

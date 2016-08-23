@@ -255,6 +255,7 @@ class CNetServer
 
 	NETSOCKET m_Socket;
 	class CNetBan *m_pNetBan;
+	class CDnsBl *m_pDnsBl;
 	CSlot m_aSlots[NET_MAX_CLIENTS];
 	int m_MaxClients;
 	int m_MaxClientsPerIP;
@@ -269,7 +270,7 @@ public:
 	int SetCallbacks(NETFUNC_NEWCLIENT pfnNewClient, NETFUNC_DELCLIENT pfnDelClient, void *pUser);
 
 	//
-	bool Open(NETADDR BindAddr, class CNetBan *pNetBan, int MaxClients, int MaxClientsPerIP, int Flags);
+	bool Open(NETADDR BindAddr, class CNetBan *pNetBan, class CDnsBl *pDnsBl, int MaxClients, int MaxClientsPerIP, int Flags);
 	int Close();
 
 	//
@@ -284,6 +285,7 @@ public:
 	const NETADDR *ClientAddr(int ClientID) const { return m_aSlots[ClientID].m_Connection.PeerAddress(); }
 	NETSOCKET Socket() const { return m_Socket; }
 	class CNetBan *NetBan() const { return m_pNetBan; }
+	class CDnsBl *DnsBl() const { return m_pDnsBl; }
 	int NetType() const { return m_Socket.type; }
 	int MaxClients() const { return m_MaxClients; }
 

@@ -20,6 +20,7 @@
 #include <engine/shared/filecollection.h>
 #include <engine/shared/mapchecker.h>
 #include <engine/shared/netban.h>
+#include <engine/shared/dnsbl.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
@@ -148,6 +149,7 @@ void CSnapIDPool::FreeID(int ID)
 void CServerBan::InitServerBan(IConsole *pConsole, IStorage *pStorage, CServer* pServer)
 {
 	CNetBan::Init(pConsole, pStorage);
+	m_DnsBl.Init(pConsole, pStorage, this);
 
 	m_pServer = pServer;
 
@@ -1269,7 +1271,7 @@ int CServer::Run()
 		BindAddr.port = g_Config.m_SvPort;
 	}
 
-	if(!m_NetServer.Open(BindAddr, &m_ServerBan, g_Config.m_SvMaxClients, g_Config.m_SvMaxClientsPerIP, 0))
+	if(!m_NetServer.Open(BindAddr, &m_ServerBan, &m_ServerBan.m_DnsBl, g_Config.m_SvMaxClients, g_Config.m_SvMaxClientsPerIP, 0))
 	{
 		dbg_msg("server", "couldn't open socket. port %d might already be in use", g_Config.m_SvPort);
 		return -1;
@@ -1731,4 +1733,3 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pConfig;
 	return 0;
 }
-
