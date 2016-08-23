@@ -69,10 +69,9 @@ void CDnsBl::CheckAndBan(const NETADDR *pAddr) const
 			dbg_msg("dnsbl", "%s blocked by %s", ip, m_BlServers[i]);
 
 			char Reason[256];
-			int Seconds = 24*60*60;
 			str_format(Reason, sizeof(Reason), "Blocked by %s", m_BlServers[i]);
 
-			m_pNetBan->BanAddr(pAddr, Seconds, Reason);
+			m_pNetBan->BanAddr(pAddr, g_Config.m_DnsBlBantime*60, Reason);
 
 			return;
 		}
