@@ -43,6 +43,7 @@ public:
 	void Init(class IConsole *pConsole, class IStorage *pStorage, CNetBan *pNetBan);
 
 	static void ConAddServer(IConsole::IResult *pResult, void *pUser);
+	static void ConClearServers(IConsole::IResult *pResult, void *pUser);
 	int AddServer(const char *pAddrStr);
 
 	void CheckAndBan(NETADDR *pAddr);

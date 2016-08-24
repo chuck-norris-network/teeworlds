@@ -29,7 +29,7 @@ void CDnsBl::Init(IConsole *pConsole, IStorage *pStorage, CNetBan *pNetBan)
 
 	Console()->Register("add_dnsbl", "s", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConAddServer, this, "Add DNSBL server");
 	// Console()->Register("banmasters", "", CFGFLAG_SERVER, ConBanmasters, this, "");
-	// Console()->Register("clear_banmasters", "", CFGFLAG_SERVER, ConClearBanmasters, this, "");
+	Console()->Register("clear_dnsbl", "", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConClearServers, this, "Clear DNSBL servers list");
 }
 
 void CDnsBl::ConAddServer(IConsole::IResult *pResult, void *pUser)
@@ -40,6 +40,14 @@ void CDnsBl::ConAddServer(IConsole::IResult *pResult, void *pUser)
 
 	if (pThis->AddServer(pAddrStr) == 1)
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "too many DNSBL servers");
+}
+
+void CDnsBl::ConClearServers(IConsole::IResult *pResult, void *pUser)
+{
+	CDnsBl *pThis = static_cast<CDnsBl *>(pUser);
+
+	pThis->m_NumBlServers = 0;
+	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "cleared DNSBL servers");
 }
 
 int CDnsBl::AddServer(const char *pAddrStr)
