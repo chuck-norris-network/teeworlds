@@ -38,15 +38,19 @@ void CDnsBl::ConAddServer(IConsole::IResult *pResult, void *pUser)
 
 	const char *pAddrStr = pResult->GetString(0);
 
-	pThis->AddServer(pAddrStr);
-
-	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "added new server");
+	if (pThis->AddServer(pAddrStr) == 1)
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "too many DNSBL servers");
 }
 
-void CDnsBl::AddServer(const char *pAddrStr)
+int CDnsBl::AddServer(const char *pAddrStr)
 {
+	if (m_NumBlServers == MAX_BL_SERVERS)
+		return 1;
+
 	m_BlServers[m_NumBlServers] = pAddrStr;
 	m_NumBlServers++;
+
+	return 0;
 }
 
 void CDnsBl::WaitQuery(ares_channel channel)
