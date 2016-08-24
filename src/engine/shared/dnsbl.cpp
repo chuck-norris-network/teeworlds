@@ -93,8 +93,15 @@ void CDnsBl::QueryCallback(void *pUserData, int Status, int Timeouts, unsigned c
 {
 	CQueryData *pQueryData = (CQueryData *)pUserData;
 
-	if (Status != ARES_SUCCESS)
+	if (Status == ARES_ENOTFOUND)
 		return;
+
+	if (Status != ARES_SUCCESS) {
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "lookup failed: %s", ares_strerror(Status));
+		pQueryData->m_DnsBl->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
+		return;
+	}
 
 	struct ares_txt_reply *Reply;
 
