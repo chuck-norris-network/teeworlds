@@ -9,6 +9,8 @@ struct CQueryData
 {
 	class CDnsBl *m_DnsBl;
 	NETADDR *m_pAddr;
+	const char* m_pServer;
+	char* m_pQuery;
 };
 
 class CDnsBl

@@ -98,7 +98,7 @@ void CDnsBl::QueryCallback(void *pUserData, int Status, int Timeouts, unsigned c
 
 	if (Status != ARES_SUCCESS) {
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "lookup failed: %s", ares_strerror(Status));
+		str_format(aBuf, sizeof(aBuf), "%s lookup failed: %s", pQueryData->m_pQuery, ares_strerror(Status));
 		pQueryData->m_DnsBl->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
 		return;
 	}
@@ -115,7 +115,7 @@ void CDnsBl::QueryCallback(void *pUserData, int Status, int Timeouts, unsigned c
 
 	char aIpStr[16];
 	net_addr_str(pQueryData->m_pAddr, aIpStr, sizeof(aIpStr), false);
-	dbg_msg("dnsbl", "%s blocked by DNSBL (%s)", aIpStr, Reply->txt);
+	dbg_msg("dnsbl", "%s blocked by %s (%s)", aIpStr, pQueryData->m_pServer, Reply->txt);
 
 	char aBanMsg[256];
 	if (!pQueryData->m_DnsBl->m_pNetBan->IsBanned(pQueryData->m_pAddr, aBanMsg, sizeof(aBanMsg)))
@@ -133,7 +133,7 @@ void CDnsBl::CheckAndBan(NETADDR *pAddr)
 		str_format(aQuery, sizeof(aQuery), "%s.%s", aPrtStr, m_BlServers[i]);
 		// str_format(aQuery, sizeof(aQuery), "2.0.0.127.%s", m_BlServers[i]);
 
-		static CQueryData s_QueryData = { this, pAddr };
+		static CQueryData s_QueryData = { this, pAddr, m_BlServers[i], aQuery };
 
 		ares_query(m_AresChannel, aQuery, ns_c_in, ns_t_txt, QueryCallback, (void *)&s_QueryData);
 		WaitQuery(m_AresChannel);
