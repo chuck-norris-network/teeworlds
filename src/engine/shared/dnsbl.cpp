@@ -27,12 +27,12 @@ void CDnsBl::Init(IConsole *pConsole, IStorage *pStorage, CNetBan *pNetBan)
 		return;
 	}
 
-	Console()->Register("add_dnsbl", "s", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConAddServer, this, "Add DNSBL server");
-	// Console()->Register("banmasters", "", CFGFLAG_SERVER, ConBanmasters, this, "");
-	Console()->Register("clear_dnsbl", "", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConClearServers, this, "Clear DNSBL servers list");
+	Console()->Register("add_dnsbl", "s", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConAddDnsbl, this, "Add DNSBL server");
+	Console()->Register("clear_dnsbl", "", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConClearDnsbl, this, "Clear DNSBL servers");
+	Console()->Register("dnsbl", "", CFGFLAG_SERVER|CFGFLAG_MASTER|CFGFLAG_STORE, ConDnsbl, this, "");
 }
 
-void CDnsBl::ConAddServer(IConsole::IResult *pResult, void *pUser)
+void CDnsBl::ConAddDnsbl(IConsole::IResult *pResult, void *pUser)
 {
 	CDnsBl *pThis = static_cast<CDnsBl *>(pUser);
 
@@ -42,12 +42,20 @@ void CDnsBl::ConAddServer(IConsole::IResult *pResult, void *pUser)
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "too many DNSBL servers");
 }
 
-void CDnsBl::ConClearServers(IConsole::IResult *pResult, void *pUser)
+void CDnsBl::ConClearDnsbl(IConsole::IResult *pResult, void *pUser)
 {
 	CDnsBl *pThis = static_cast<CDnsBl *>(pUser);
 
 	pThis->m_NumBlServers = 0;
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", "cleared DNSBL servers");
+}
+
+void CDnsBl::ConDnsbl(IConsole::IResult *pResult, void *pUser)
+{
+	CDnsBl *pThis = static_cast<CDnsBl *>(pUser);
+
+	for(int i = 0; i < pThis->m_NumBlServers; i++)
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", pThis->m_BlServers[i]);
 }
 
 int CDnsBl::AddServer(const char *pAddrStr)
