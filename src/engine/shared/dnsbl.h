@@ -6,22 +6,23 @@
 #include <base/system.h>
 #include <engine/shared/jobs.h>
 
-struct CQueryData
+struct CDnsBlQuery
 {
-	class CDnsBl *m_pDnsBl;
-	NETADDR *m_pAddr;
-	char m_Server[256];
-	char m_Query[256];
+	NETADDR m_Addr;
+	char m_Query[NETADDR_MAXSTRSIZE];
+	char m_Server[NETADDR_MAXSTRSIZE];
+	char *m_Reason;
+	int m_Status;
+};
+
+enum
+{
+	MAX_BL_SERVERS=16,
+	MAX_QUEUE_LENGTH=64,
 };
 
 class CDnsBl
 {
-
-	enum
-	{
-		MAX_BL_SERVERS=16,
-	};
-
 protected:
 
 	class IConsole *m_pConsole;
@@ -30,9 +31,16 @@ protected:
 	class CNetBan *m_pNetBan;
 
 	const char* m_BlServers[MAX_BL_SERVERS];
-	int m_NumBlServers;
+	int m_BlServersCount;
 
 	ares_channel m_AresChannel;
+
+	pthread_mutex_t m_QueryThreadLock;
+	pthread_cond_t m_QueryThreadCond;
+
+	CDnsBlQuery m_Queue[MAX_QUEUE_LENGTH];
+	int m_QueueHead;
+	int m_QueueTail;
 
 	class IConsole *Console() const { return m_pConsole; }
 	class IStorage *Storage() const { return m_pStorage; }
@@ -40,7 +48,8 @@ protected:
 
 	static void QueryThread(void *pUser);
 	static void QueryCallback(void *pUser, int Status, int Timeouts, unsigned char *pBuf, int BufferSize);
-	void MakeQuery(NETADDR *pAddr, const char* m_BlServer);
+
+	CDnsBlQuery CreateQuery(NETADDR *pAddr, const char* pBlServer);
 
 public:
 
@@ -52,7 +61,6 @@ public:
 
 	int AddServer(const char *pAddrStr);
 	void CheckAndBan(NETADDR *pAddr);
-
 };
 
 #endif
