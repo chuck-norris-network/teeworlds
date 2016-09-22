@@ -13,7 +13,7 @@
 #include "sound.h"
 
 extern "C" { // wavpack
-	#include <engine/external/wavpack/wavpack.h>
+	#include <wavpack/wavpack.h>
 }
 #include <math.h>
 
@@ -338,6 +338,7 @@ int CSound::LoadWV(const char *pFilename)
 	CSample *pSample;
 	int SampleID = -1;
 	char aError[100];
+	char completefilename[102400] = "";
 	WavpackContext *pContext;
 
 	// don't waste memory on sound when we are stress testing
@@ -351,7 +352,9 @@ int CSound::LoadWV(const char *pFilename)
 	if(!m_pStorage)
 		return -1;
 
-	ms_File = m_pStorage->OpenFile(pFilename, IOFLAG_READ, IStorage::TYPE_ALL);
+        strncat(completefilename, "/usr/share/teeworlds/data/", 50);
+        strncat(completefilename, pFilename, strlen(pFilename));
+        ms_File = m_pStorage->OpenFile(completefilename, IOFLAG_READ, IStorage::TYPE_ALL);
 	if(!ms_File)
 	{
 		dbg_msg("sound/wv", "failed to open file. filename='%s'", pFilename);
@@ -363,7 +366,7 @@ int CSound::LoadWV(const char *pFilename)
 		return -1;
 	pSample = &m_aSamples[SampleID];
 
-	pContext = WavpackOpenFileInput(ReadData, aError);
+	pContext = WavpackOpenFileInput(completefilename, aError, 0, 0);
 	if (pContext)
 	{
 		int m_aSamples = WavpackGetNumSamples(pContext);

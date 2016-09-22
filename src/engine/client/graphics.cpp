@@ -9,7 +9,7 @@
 #include "SDL_opengl.h"
 
 #include <base/system.h>
-#include <engine/external/pnglite/pnglite.h>
+#include <pnglite.h>
 
 #include <engine/shared/config.h>
 #include <engine/graphics.h>

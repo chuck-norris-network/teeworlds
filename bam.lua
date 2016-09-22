@@ -11,6 +11,8 @@ config:Add(OptTestCompileC("stackprotector", "int main(){return 0;}", "-fstack-p
 config:Add(OptTestCompileC("minmacosxsdk", "int main(){return 0;}", "-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk"))
 config:Add(OptTestCompileC("macosxppc", "int main(){return 0;}", "-arch ppc"))
 config:Add(OptLibrary("zlib", "zlib.h", false))
+config:Add(OptLibrary("wavpack", "wavpack/wavpack.h", false))
+config:Add(OptLibrary("pnglite", "sys/types.h", false))
 config:Add(OptLibrary("cares", "ares.h", false))
 config:Add(SDL.OptFind("sdl", true))
 config:Add(FreeType.OptFind("freetype", true))
@@ -143,6 +145,13 @@ function build(settings)
 
 	--settings.objdir = Path("objs")
 	settings.cc.Output = Intermediate_Output
+	settings.cc.flags:Add(os.getenv ('CFLAGS'))
+	settings.cc.flags:Add(os.getenv ('CPPFLAGS'))
+	settings.cc.flags:Add(os.getenv ('LDFLAGS'))
+	settings.link.libs:Add("wavpack")
+	settings.link.libs:Add("z")
+	settings.link.libs:Add("pnglite")
+	--settings.link.flags:Add('-lpng12')
 
 	settings.link.libs:Add("cares")
 
@@ -188,22 +197,6 @@ function build(settings)
 		settings.link.libs:Add("ole32")
 		settings.link.libs:Add("shell32")
 	end
-
-	-- compile zlib if needed
-	if config.zlib.value == 1 then
-		settings.link.libs:Add("z")
-		if config.zlib.include_path then
-			settings.cc.includes:Add(config.zlib.include_path)
-		end
-		zlib = {}
-	else
-		zlib = Compile(settings, Collect("src/engine/external/zlib/*.c"))
-		settings.cc.includes:Add("src/engine/external/zlib")
-	end
-
-	-- build the small libraries
-	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
-	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 
 	-- build game components
 	engine_settings = settings:Copy()
