@@ -44,7 +44,7 @@ class CEcon
 public:
 	IConsole *Console() { return m_pConsole; }
 
-	void Init(IConsole *pConsole, class CNetBan *pNetBan);
+	int Init(IConsole *pConsole, class CNetBan *pNetBan);
 	void Update();
 	void Send(int ClientID, const char *pLine);
 	void Shutdown();
