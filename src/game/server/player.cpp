@@ -1,5 +1,5 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* If you are missing that file, acquire a complete release at teeworlds.com.		*/
 #include <new>
 #include <engine/shared/config.h>
 #include "player.h"
@@ -22,11 +22,11 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
-        
-        this->LastWarn = Server()->Tick();
-        this->LastFireTick = std::valarray<int>(Server()->Tick(), 30+1); // for 30 real time diffs we need one extra
-        this->LastFireIdx = 0;
-	
+
+	this->LastWarn = Server()->Tick();
+	this->LastFireTick = std::valarray<int>(Server()->Tick(), 30+1); // for 30 real time diffs we need one extra
+	this->LastFireIdx = 0;
+
 	Warnings = 0;
 }
 
@@ -98,7 +98,7 @@ void CPlayer::Tick()
 		++m_LastActionTick;
 		++m_TeamChangeTick;
  	}
-	
+
 	RajhCheatDetector::OnTick(this);
 }
 
@@ -167,7 +167,7 @@ void CPlayer::Snap(int SnappingClient)
 void CPlayer::OnDisconnect(const char *pReason)
 {
   RajhCheatDetector::OnPlayerLeave(this);
-  
+
 	KillCharacter();
 
 	if(Server()->ClientIngame(m_ClientID))

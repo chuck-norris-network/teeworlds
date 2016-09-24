@@ -1,5 +1,5 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* If you are missing that file, acquire a complete release at teeworlds.com.		*/
 #include <new>
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
@@ -547,15 +547,15 @@ void CCharacter::Tick()
 
 	// Previnput
 	m_PrevInput = m_Input;
-	
+
 
     if(CountInput(m_LatestPrevInput.m_Hook, m_LatestInput.m_Hook).m_Presses)
-            RajhCheatDetector::OnFire(m_pPlayer);
+	    RajhCheatDetector::OnFire(m_pPlayer);
 
     int events = m_Core.m_TriggeredEvents;
     if(events&COREEVENT_HOOK_ATTACH_PLAYER && m_Core.m_HookedPlayer != -1)
-            RajhCheatDetector::OnHit(m_pPlayer, m_Core.m_HookedPlayer);
-	
+	    RajhCheatDetector::OnHit(m_pPlayer, m_Core.m_HookedPlayer);
+
 	return;
 }
 
@@ -710,7 +710,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
-	
+
 	RajhCheatDetector::OnHit(GameServer()->m_apPlayers[From], m_pPlayer->GetCID());
 
 	// m_pPlayer only inflicts half damage on self

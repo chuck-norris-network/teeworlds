@@ -1,5 +1,5 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* If you are missing that file, acquire a complete release at teeworlds.com.		*/
 #ifndef GAME_SERVER_ENTITIES_CHARACTER_H
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
@@ -101,15 +101,15 @@ private:
 
 public:
 	// RajhCheatDetector
-        // a backup of m_LatestPrevInput
+	// a backup of m_LatestPrevInput
 	CNetObj_PlayerInput OldInput;
-	
-        // the most recent input we received
-        CNetObj_PlayerInput m_LatestInput;
-        
+
+	// the most recent input we received
+	CNetObj_PlayerInput m_LatestInput;
+
 	// a backup of m_LatestInput
 	CNetObj_PlayerInput m_LatestPrevInput;
-        
+
 
 	// input
 	CNetObj_PlayerInput m_PrevInput;
@@ -118,7 +118,7 @@ public:
 	int m_Jumped;
 
 private:
-        friend class RajhCheatDetector;
+	friend class RajhCheatDetector;
 
 	int m_DamageTakenTick;
 
