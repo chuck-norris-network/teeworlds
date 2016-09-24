@@ -128,32 +128,21 @@ void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 
 void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 {
-       if(Player->Warnings>0 && Player->Server()->Tick()-Player->LastWarn > Player->Server()->TickSpeed()*30)
-       {
-	       Player->Warnings--;
-	       Player->LastWarn = Player->Server()->Tick();
+	if(Player->Warnings>0 && Player->Server()->Tick()-Player->LastWarn > Player->Server()->TickSpeed()*30)
+	{
+		Player->Warnings--;
+		Player->LastWarn = Player->Server()->Tick();
+		str_format(aBuf, sizeof(aBuf), "'%s' warnings : %d (30 sec without strange behavior)",Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	}
 
-	       str_format(aBuf, sizeof(aBuf), "'%s' warnings : %d (30 sec without strange behavior)",Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
-	       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-       }
-
-       if(Player->Warnings >= g_Config.m_RcdMaxWarnings && g_Config.m_RcdEnable)
-       {
-	 // DONT KICK a PLAYER
-	 // if one uses a bot and gets kicked, he'll probably come back
-	 // if one uses a bot and gets banned, he may get a new IP and come back (like "TheEverest")
-	 // so better just set down their health so they get killed by every single bullet, making them loose the fun of botting
-
-//		char buff[128];
-//		str_format(buff, sizeof(buff), "'%s' has been kicked by RCD",Player->Server()->ClientName(Player->GetCID()));
-//		Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,buff);
-//		Player->Server()->Kick(Player->GetCID(), "Kicked by RCD");
-	 if(CCharacter *c = Player->GetCharacter())
-	 {
-	       c->m_Health = 1;
-	       c->m_Armor = 0;
-	 }
-       }
+	if(Player->Warnings >= g_Config.m_RcdMaxWarnings && g_Config.m_RcdEnable)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "/admin Look at me, probably I use cheats");
+		Player->GameServer()->SendChat(Player->GetCID(), CGameContext::CHAT_SPEC, aBuf);
+		g_Config.m_RcdEnable = 0; // avoid flood
+	}
 }
 
 bool RajhCheatDetector::CheckFastChange(CPlayer * Player)
