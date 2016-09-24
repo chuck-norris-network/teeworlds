@@ -56,48 +56,48 @@ void RajhCheatDetector::OnPlayerEnter(CPlayer * Player)
 {
   if(Player == 0)
     return;
-  
+
       std::map<std::string, int>::iterator itName = mapName.find(std::string(Player->Server()->ClientName(Player->GetCID())));
       bool playerFound = itName != mapName.end();
 
       bool clanFound = mapClan.find(std::string(Player->Server()->ClientClan(Player->GetCID()))) != mapClan.end();
-      
+
       Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
       std::string ip = std::string(aBuf);
       std::map<std::string, int>::iterator itIP = mapIP.find(ip);
       bool ipFound = itIP != mapIP.end();
-      
+
       if(playerFound && ipFound && clanFound)
       {
 	// no doubt, this is the same guy
 	Player->Warnings = itName->second;
-        
+
         str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name,ip,clan match)",Player->Server()->ClientName(Player->GetCID()));
-        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
       }
       else if(playerFound && clanFound)
       {
 	// very likely, he got a new ip
 	Player->Warnings = itName->second;
-        
+
         str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name,clan match)",Player->Server()->ClientName(Player->GetCID()));
-        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
       }
       else if(playerFound)
       {
         // well, maybe he got a new ip
         Player->Warnings = g_Config.m_RcdMaxWarnings - 2;
-        
+
         str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name match)",Player->Server()->ClientName(Player->GetCID()));
-        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
       }
       else if(ipFound)
       {
 	// time will show
  	Player->Warnings = g_Config.m_RcdMaxWarnings / 2;
-        
+
         str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (ip match)",Player->Server()->ClientName(Player->GetCID()));
-        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
       }
 }
 
@@ -107,10 +107,10 @@ void RajhCheatDetector::OnPlayerLeave(CPlayer * Player)
        {
 	    std::string name = Player->Server()->ClientName(Player->GetCID());
 	    std::string clan = Player->Server()->ClientClan(Player->GetCID());
-	    
+
 	    Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
 	    std::string ip = std::string(aBuf);
-	    
+
 	    mapName[name] = Player->Warnings;
 	    mapClan[clan] = Player->Warnings;
 	    mapIP[ip] = Player->Warnings;
@@ -121,9 +121,9 @@ void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 {
        Player->Warnings += amount;
        Player->LastWarn = Player->Server()->Tick();
-       
+
        str_format(aBuf, sizeof(aBuf), "'%s' warnings : %d",Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
-       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 }
 
 void RajhCheatDetector::CheckWarnings(CPlayer * Player)
@@ -132,9 +132,9 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
        {
                Player->Warnings--;
                Player->LastWarn = Player->Server()->Tick();
-	       
+
 	       str_format(aBuf, sizeof(aBuf), "'%s' warnings : %d (30 sec without strange behavior)",Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
-               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
        }
 
        if(Player->Warnings >= g_Config.m_RcdMaxWarnings && g_Config.m_RcdEnable)
@@ -143,7 +143,7 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 	 // if one uses a bot and gets kicked, he'll probably come back
 	 // if one uses a bot and gets banned, he may get a new IP and come back (like "TheEverest")
 	 // so better just set down their health so they get killed by every single bullet, making them loose the fun of botting
-	 
+
 //                char buff[128];
 //                str_format(buff, sizeof(buff), "'%s' has been kicked by RCD",Player->Server()->ClientName(Player->GetCID()));
 //                Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,buff);
@@ -167,7 +167,7 @@ bool RajhCheatDetector::CheckFastChange(CPlayer * Player)
        {
 	       str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at where he aimed 2 ticks ago",Player->Server()->ClientName(Player->GetCID()));
 // 	       Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,aBuf);
-               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
                return true;
        }
 
@@ -188,7 +188,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer * Player, int Victim)
        {
 	       str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position",Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 // 	       Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,aBuf);
-               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
                return true;
        }
 
@@ -208,7 +208,7 @@ bool RajhCheatDetector::CheckReflex(CPlayer * Player, int Victim)
        {
 	       str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' at max range",Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 // 	       Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,aBuf);
-               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
+               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
                return true;
        }
        return false;
@@ -235,23 +235,23 @@ bool RajhCheatDetector::CheckFastFire(CPlayer * Player)
        CCharacter *c = Player->GameServer()->GetPlayerChar(Player->GetCID());
        if(!c || !Player || !TestFire(c->m_LatestPrevInput.m_Fire, c->m_LatestInput.m_Fire))
 	 return false;
-       
-       
+
+
        bool result;
-       
+
        if(Player->LastFireIdx >= Player->LastFireTick.size())
        {
          // we ve collected enough samples
-         
+
          Player->LastFireIdx = 0;
 
 std::cout << "lastfiretick array for player id " << Player->GetCID() << std::endl;
-for (unsigned int i=0; i<Player->LastFireTick.size(); i++) 
+for (unsigned int i=0; i<Player->LastFireTick.size(); i++)
 {
 std::cout << Player->LastFireTick[i] << ' ';
 }
 std::cout << std::endl;
-         
+
          // derive to get the time diff between each fireing
          for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
          {
@@ -259,34 +259,34 @@ std::cout << std::endl;
          }
          unsigned int last = Player->LastFireTick.size()-1;
          Player->LastFireTick[last] = Player->Server()->Tick() - Player->LastFireTick[last];
-         
-for (unsigned int i=0; i<Player->LastFireTick.size(); i++) 
+
+for (unsigned int i=0; i<Player->LastFireTick.size(); i++)
 {
 std::cout << Player->LastFireTick[i] << ' ';
 }
 std::cout << std::endl;
-         
+
          // derive again to get the change of the diffs
          for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
          {
            Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
          }
          Player->LastFireTick[last] = 0;
-         
-for (unsigned int i=0; i<Player->LastFireTick.size(); i++) 
+
+for (unsigned int i=0; i<Player->LastFireTick.size(); i++)
 {
 std::cout << Player->LastFireTick[i] << ' ';
 }
 std::cout << std::endl;
-         
+
 
 //          Player->LastFireTick = std::abs(Player->LastFireTick);
-         
+
          if(std::abs(Player->LastFireTick.sum()) <= 1)
          {
                str_format(aBuf, sizeof(aBuf), "'%s' fires way too regularly",Player->Server()->ClientName(Player->GetCID()));
-               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
-               
+               Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+
            result = true;
          }
          else
@@ -297,23 +297,23 @@ std::cout << std::endl;
        else
        {
          Player->LastFireTick[Player->LastFireIdx++] = Player->Server()->Tick();
-         
+
          result = false;
        }
-       
+
 //        if(diff <= Player->Server()->TickSpeed()*0.002)
 //        {
 //                str_format(aBuf, sizeof(aBuf), "'%s' already fired %d ms ago",Player->Server()->ClientName(Player->GetCID()), diff);
-//                Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "RCD", aBuf);
-//                
+//                Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+//
 //                result = true;
 //        }
 //        else
 //        {
 //          result = false;
 //        }
-//        
+//
 //        Player->LastFireTick = Player->Server()->Tick();
-       
+
        return result;
 }
