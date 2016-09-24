@@ -9,6 +9,8 @@
 #include "laser.h"
 #include "projectile.h"
 
+#include "../rcd.hpp"
+
 //input count
 struct CInputCount
 {
@@ -254,6 +256,7 @@ void CCharacter::FireWeapon()
 	if(m_ActiveWeapon == WEAPON_GRENADE || m_ActiveWeapon == WEAPON_SHOTGUN || m_ActiveWeapon == WEAPON_RIFLE)
 		FullAuto = true;
 
+	RajhCheatDetector::OnFire(m_pPlayer);
 
 	// check if we gonna fire
 	bool WillFire = false;
@@ -499,6 +502,7 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		FireWeapon();
 	}
 
+	mem_copy(&OldInput, &m_LatestPrevInput, sizeof(m_LatestPrevInput));
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 }
 
@@ -543,6 +547,15 @@ void CCharacter::Tick()
 
 	// Previnput
 	m_PrevInput = m_Input;
+	
+
+    if(CountInput(m_LatestPrevInput.m_Hook, m_LatestInput.m_Hook).m_Presses)
+            RajhCheatDetector::OnFire(m_pPlayer);
+
+    int events = m_Core.m_TriggeredEvents;
+    if(events&COREEVENT_HOOK_ATTACH_PLAYER && m_Core.m_HookedPlayer != -1)
+            RajhCheatDetector::OnHit(m_pPlayer, m_Core.m_HookedPlayer);
+	
 	return;
 }
 
@@ -697,6 +710,8 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
+	
+	RajhCheatDetector::OnHit(GameServer()->m_apPlayers[From], m_pPlayer->GetCID());
 
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCID())

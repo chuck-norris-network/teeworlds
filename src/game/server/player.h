@@ -7,6 +7,8 @@
 #include "entities/character.h"
 #include "gamecontext.h"
 
+#include <valarray>
+
 // player object
 class CPlayer
 {
@@ -96,15 +98,22 @@ public:
 		int m_Max;
 	} m_Latency;
 
+	// RajhCheatDetector
+        int Warnings;
+        int LastWarn;
+        std::valarray<int> LastFireTick;
+        unsigned int LastFireIdx;
+	
 private:
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
-
+public:
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const;
-
+private:
 	//
 	bool m_Spawning;
+
 	int m_ClientID;
 	int m_Team;
 };

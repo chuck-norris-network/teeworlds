@@ -99,15 +99,26 @@ private:
 	int m_LastAction;
 	int m_LastNoAmmoSound;
 
-	// these are non-heldback inputs
+public:
+	// RajhCheatDetector
+        // a backup of m_LatestPrevInput
+	CNetObj_PlayerInput OldInput;
+	
+        // the most recent input we received
+        CNetObj_PlayerInput m_LatestInput;
+        
+	// a backup of m_LatestInput
 	CNetObj_PlayerInput m_LatestPrevInput;
-	CNetObj_PlayerInput m_LatestInput;
+        
 
 	// input
 	CNetObj_PlayerInput m_PrevInput;
 	CNetObj_PlayerInput m_Input;
 	int m_NumInputs;
 	int m_Jumped;
+
+private:
+        friend class RajhCheatDetector;
 
 	int m_DamageTakenTick;
 

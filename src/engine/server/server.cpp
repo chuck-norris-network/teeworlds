@@ -26,6 +26,9 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/snapshot.h>
 
+#include <game/server/gamecontext.h>
+#include <game/server/rcd.hpp>
+
 #include <mastersrv/mastersrv.h>
 
 #include "register.h"
@@ -1458,8 +1461,11 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 			{
 				const char *pAuthStr = pThis->m_aClients[i].m_Authed == CServer::AUTHED_ADMIN ? "(Admin)" :
 										pThis->m_aClients[i].m_Authed == CServer::AUTHED_MOD ? "(Mod)" : "";
-				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s name='%s' score=%d %s", i, aAddrStr,
-					pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_Score, pAuthStr);
+
+				CGameContext* gserver = dynamic_cast<CGameContext*>(pThis->m_pGameServer);
+
+				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s name='%s' score=%d warns=%d %s", i, aAddrStr,
+					pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_Score, gserver->m_apPlayers[i]->Warnings, pAuthStr);
 			}
 			else
 				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s connecting", i, aAddrStr);
@@ -1623,11 +1629,30 @@ void CServer::RegisterCommands()
 	Console()->Chain("mod_command", ConchainModCommandUpdate, this);
 	Console()->Chain("console_output_level", ConchainConsoleOutputLevelUpdate, this);
 
+	Console()->Register("rcd_reset", "", CFGFLAG_SERVER, RcdReset, this, "RCD: Forget all Players");
+
 	// register console commands in sub parts
 	m_ServerBan.InitServerBan(Console(), Storage(), this);
 	m_pGameServer->OnConsoleInit();
 }
 
+void CServer::RcdReset(IConsole::IResult *pResult, void *pUser)
+{
+	CServer* pThis = static_cast<CServer *>(pUser);
+	CGameContext* gserver = dynamic_cast<CGameContext*>(pThis->m_pGameServer);
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(pThis->m_aClients[i].m_State != CClient::STATE_EMPTY)
+		{
+			if(pThis->m_aClients[i].m_State == CClient::STATE_INGAME)
+			{
+			  gserver->m_apPlayers[i]->Warnings = 0;
+			}
+		}
+	}
+	
+	RajhCheatDetector::ForgetAllClients();
+}
 
 int CServer::SnapNewID()
 {
