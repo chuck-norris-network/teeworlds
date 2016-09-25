@@ -28,15 +28,15 @@ void RajhCheatDetector::ForgetAllClients()
 void RajhCheatDetector::OnFire(CPlayer * Player)
 {
 	CheckFastChange(Player);
+
+	if(CheckFastFire(Player))
+		AddWarning(Player, 1);
 }
 
 void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 {
 	if(Player->GetCID() == Victim)
 		return;
-
-	if(CheckFastFire(Player))
-		AddWarning(Player, 2);
 
 	if(CheckInputPos(Player, Victim))
 		AddWarning(Player, 4);
@@ -140,7 +140,7 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 
 		if (g_Config.m_RcdBantime == 0)
 		{
-			str_format(aCmd, sizeof(aCmd), "kick %d %s", Player->GetCID(), g_Config.m_RcdBanreason,);
+			str_format(aCmd, sizeof(aCmd), "kick %d %s", Player->GetCID(), g_Config.m_RcdBanreason);
 		}
 		else
 		{
