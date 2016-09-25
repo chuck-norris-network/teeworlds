@@ -27,20 +27,21 @@ void RajhCheatDetector::ForgetAllClients()
 void RajhCheatDetector::OnFire(CPlayer * Player)
 {
 	CheckFastChange(Player);
-
-	if(CheckFastFire(Player))
-		AddWarning(Player, 3);
 }
 
 void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 {
-			 if(Player->GetCID() == Victim)
-				 return;
+	if(Player->GetCID() == Victim)
+		return;
 
-			 if(CheckInputPos(Player, Victim))
-				 AddWarning(Player, 4);
-			 if(CheckReflex(Player, Victim))
-				 AddWarning(Player, 2);
+	if(CheckFastFire(Player))
+		AddWarning(Player, 3);
+
+	if(CheckInputPos(Player, Victim))
+		AddWarning(Player, 4);
+
+	if(CheckReflex(Player, Victim))
+		AddWarning(Player, 2);
 }
 
 void RajhCheatDetector::OnTick(CPlayer * Player)
@@ -217,68 +218,41 @@ static int TestFire(int prev, int cur)
 
 bool RajhCheatDetector::CheckFastFire(CPlayer * Player)
 {
-			 CCharacter *c = Player->GameServer()->GetPlayerChar(Player->GetCID());
-			 if(!c || !Player || !TestFire(c->m_LatestPrevInput.m_Fire, c->m_LatestInput.m_Fire))
-	 return false;
+	CCharacter *c = Player->GameServer()->GetPlayerChar(Player->GetCID());
 
+	if(!c || !Player || !TestFire(c->m_LatestPrevInput.m_Fire, c->m_LatestInput.m_Fire))
+		return false;
 
-			 bool result;
+	// we ve collected enough samples
+	if(Player->LastFireIdx >= Player->LastFireTick.size())
+	{
+		Player->LastFireIdx = 0;
 
-			 if(Player->LastFireIdx >= Player->LastFireTick.size())
-			 {
-	 // we ve collected enough samples
+		// derive to get the time diff between each fireing
+		for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
+		{
+			Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
+		}
+		unsigned int last = Player->LastFireTick.size()-1;
+		Player->LastFireTick[last] = Player->Server()->Tick() - Player->LastFireTick[last];
 
-	 Player->LastFireIdx = 0;
+		// derive again to get the change of the diffs
+		for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
+		{
+			Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
+		}
+		Player->LastFireTick[last] = 0;
 
-	 // derive to get the time diff between each fireing
-	 for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
-	 {
-		 Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
-	 }
-	 unsigned int last = Player->LastFireTick.size()-1;
-	 Player->LastFireTick[last] = Player->Server()->Tick() - Player->LastFireTick[last];
+		if(std::abs(Player->LastFireTick.sum()) <= 1)
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' fires way too regularly",Player->Server()->ClientName(Player->GetCID()));
+			Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+			return true;
+		}
 
-	 // derive again to get the change of the diffs
-	 for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
-	 {
-		 Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
-	 }
-	 Player->LastFireTick[last] = 0;
+		return false;
+	}
 
-//		Player->LastFireTick = std::abs(Player->LastFireTick);
-
-	 if(std::abs(Player->LastFireTick.sum()) <= 1)
-	 {
-				 str_format(aBuf, sizeof(aBuf), "'%s' fires way too regularly",Player->Server()->ClientName(Player->GetCID()));
-				 Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-
-		 result = true;
-	 }
-	 else
-	 {
-		 result = false;
-	 }
-			 }
-			 else
-			 {
-	 Player->LastFireTick[Player->LastFireIdx++] = Player->Server()->Tick();
-
-	 result = false;
-			 }
-
-//	if(diff <= Player->Server()->TickSpeed()*0.002)
-//	{
-//		str_format(aBuf, sizeof(aBuf), "'%s' already fired %d ms ago",Player->Server()->ClientName(Player->GetCID()), diff);
-//		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-//
-//		result = true;
-//	}
-//	else
-//	{
-//		result = false;
-//	}
-//
-//	Player->LastFireTick = Player->Server()->Tick();
-
-			 return result;
+	Player->LastFireTick[Player->LastFireIdx++] = Player->Server()->Tick();
+	return false;
 }
