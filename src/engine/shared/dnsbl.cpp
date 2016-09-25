@@ -126,7 +126,7 @@ void CDnsBl::QueryThread(void *pUser)
 			dbg_msg("dnsbl", "%s blocked by %s (%s)", aAddrStr, pQuery->m_Server, pQuery->m_Reason);
 
 			if (!pThis->m_pNetBan->IsBanned(&pQuery->m_Addr, aBanMsg, sizeof(aBanMsg)))
-				pThis->m_pNetBan->BanAddr(&pQuery->m_Addr, g_Config.m_DnsBlBantime*60, pQuery->m_Reason);
+				pThis->m_pNetBan->BanAddr(&pQuery->m_Addr, g_Config.m_DnsblBantime*60, pQuery->m_Reason);
 		}
 	}
 }
