@@ -35,7 +35,7 @@ void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 		return;
 
 	if(CheckFastFire(Player))
-		AddWarning(Player, 3);
+		AddWarning(Player, 2);
 
 	if(CheckInputPos(Player, Victim))
 		AddWarning(Player, 4);
