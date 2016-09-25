@@ -1,4 +1,5 @@
 #include <engine/shared/config.h>
+#include <engine/server.h>
 
 #include "player.h"
 #include "gamecontext.h"
@@ -125,20 +126,30 @@ void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 
 void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 {
-	if(Player->Warnings>0 && Player->Server()->Tick()-Player->LastWarn > Player->Server()->TickSpeed()*30)
+	if(Player->Warnings > 0 && Player->Server()->Tick() - Player->LastWarn > Player->Server()->TickSpeed() * 30)
 	{
 		Player->Warnings--;
 		Player->LastWarn = Player->Server()->Tick();
-		str_format(aBuf, sizeof(aBuf), "'%s' warnings : %d (30 sec without strange behavior)",Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
+		str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d (30 sec without strange behavior)", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
 		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 	}
 
-	if(Player->Warnings >= g_Config.m_RcdMaxWarnings && g_Config.m_RcdEnable)
+	if(g_Config.m_RcdEnable && Player->Warnings >= g_Config.m_RcdMaxWarnings && Player->Warnings > 0)
 	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "/admin Look at me, probably I use cheats");
-		Player->GameServer()->SendChat(Player->GetCID(), CGameContext::CHAT_SPEC, aBuf);
-		g_Config.m_RcdEnable = 0; // avoid flood
+		char aCmd[128] = {0};
+
+		if (g_Config.m_RcdBantime == 0)
+		{
+			str_format(aCmd, sizeof(aCmd), "kick %d %s", Player->GetCID(), g_Config.m_RcdBanreason,);
+		}
+		else
+		{
+			char aAddrStr[NETADDR_MAXSTRSIZE] = {0};
+			Player->Server()->GetClientAddr(Player->GetCID(), aAddrStr, sizeof(aAddrStr));
+			str_format(aCmd, sizeof(aCmd), "ban %s %d %s", aAddrStr, g_Config.m_RcdBantime, g_Config.m_RcdBanreason);
+		}
+
+		Player->GameServer()->Console()->ExecuteLine(aCmd);
 	}
 }
 

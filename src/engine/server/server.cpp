@@ -1650,7 +1650,7 @@ void CServer::RcdReset(IConsole::IResult *pResult, void *pUser)
 			}
 		}
 	}
-	
+
 	RajhCheatDetector::ForgetAllClients();
 }
 

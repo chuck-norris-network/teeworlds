@@ -86,8 +86,10 @@ MACRO_CONFIG_INT(SvVoteKickBantime, sv_vote_kick_bantime, 5, 0, 1440, CFGFLAG_SE
 
 MACRO_CONFIG_INT(DnsblBantime, dnsbl_bantime, 5, 0, 1440, CFGFLAG_SERVER, "The time a client gets banned if blocked by DNSBL (0=lifetime ban)")
 
-MACRO_CONFIG_INT(RcdEnable, rcd_enable, 1, 0, 1, CFGFLAG_SERVER, "Enable Bot and Cheat Detection")
+MACRO_CONFIG_INT(RcdEnable, rcd_enable, 1, 0, 1, CFGFLAG_SERVER, "Enable cheat detection")
 MACRO_CONFIG_INT(RcdMaxWarnings, rcd_max_warnings, 50, 0, 100, CFGFLAG_SERVER, "Set the number of warnings before kick")
+MACRO_CONFIG_INT(RcdBantime, rcd_bantime, 5, 0, 1440, CFGFLAG_SERVER, "The time to ban a player if kicked by RCD. 0 makes it just use kick")
+MACRO_CONFIG_STR(RcdBanreason, rcd_banreason, 64, "Banned by anti-cheat system", CFGFLAG_SERVER, "Ban reason if kicked by RCD")
 
 // debug
 #ifdef CONF_DEBUG // this one can crash the server if not used correctly
