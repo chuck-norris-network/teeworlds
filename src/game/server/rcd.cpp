@@ -27,8 +27,6 @@ void RajhCheatDetector::ForgetAllClients()
 // thus check real fire with TestFire()
 void RajhCheatDetector::OnFire(CPlayer * Player)
 {
-	CheckFastChange(Player);
-
 	if(CheckFastFire(Player))
 		AddWarning(Player, 1);
 }
@@ -151,24 +149,6 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 
 		Player->GameServer()->Console()->ExecuteLine(aCmd);
 	}
-}
-
-bool RajhCheatDetector::CheckFastChange(CPlayer * Player)
-{
-			 CCharacter *CPlayer;
-			 if(!(CPlayer = Player->GameServer()->GetPlayerChar(Player->GetCID())))
-				 return false;
-
-			 if(CPlayer->m_LatestInput.m_TargetX == CPlayer->OldInput.m_TargetX && CPlayer->m_LatestInput.m_TargetY == CPlayer->OldInput.m_TargetY
-				 && CPlayer->m_LatestInput.m_TargetX != CPlayer->m_LatestPrevInput.m_TargetX && CPlayer->m_LatestInput.m_TargetY != CPlayer->m_LatestPrevInput.m_TargetY)
-			 {
-				 str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at where he aimed 2 ticks ago",Player->Server()->ClientName(Player->GetCID()));
-// 				 Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,aBuf);
-				 Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-				 return true;
-			 }
-
-			 return false;
 }
 
 bool RajhCheatDetector::CheckInputPos(CPlayer * Player, int Victim)

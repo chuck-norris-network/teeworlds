@@ -100,16 +100,11 @@ private:
 	int m_LastNoAmmoSound;
 
 public:
-	// RajhCheatDetector
-	// a backup of m_LatestPrevInput
-	CNetObj_PlayerInput OldInput;
-
 	// the most recent input we received
 	CNetObj_PlayerInput m_LatestInput;
 
 	// a backup of m_LatestInput
 	CNetObj_PlayerInput m_LatestPrevInput;
-
 
 	// input
 	CNetObj_PlayerInput m_PrevInput;

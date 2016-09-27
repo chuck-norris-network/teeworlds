@@ -502,7 +502,6 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		FireWeapon();
 	}
 
-	mem_copy(&OldInput, &m_LatestPrevInput, sizeof(m_LatestPrevInput));
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 }
 
