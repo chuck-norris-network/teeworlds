@@ -45,7 +45,7 @@ void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 
 void RajhCheatDetector::OnTick(CPlayer * Player)
 {
-			 CheckWarnings(Player);
+	CheckWarnings(Player);
 }
 
 void RajhCheatDetector::OnPlayerEnter(CPlayer * Player)
@@ -53,64 +53,59 @@ void RajhCheatDetector::OnPlayerEnter(CPlayer * Player)
 	if(Player == 0)
 		return;
 
-			std::map<std::string, int>::iterator itName = mapName.find(std::string(Player->Server()->ClientName(Player->GetCID())));
-			bool playerFound = itName != mapName.end();
+	std::map<std::string, int>::iterator itName = mapName.find(std::string(Player->Server()->ClientName(Player->GetCID())));
+	bool playerFound = itName != mapName.end();
 
-			bool clanFound = mapClan.find(std::string(Player->Server()->ClientClan(Player->GetCID()))) != mapClan.end();
+	bool clanFound = mapClan.find(std::string(Player->Server()->ClientClan(Player->GetCID()))) != mapClan.end();
 
-			Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
-			std::string ip = std::string(aBuf);
-			std::map<std::string, int>::iterator itIP = mapIP.find(ip);
-			bool ipFound = itIP != mapIP.end();
+	Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
+	std::string ip = std::string(aBuf);
+	std::map<std::string, int>::iterator itIP = mapIP.find(ip);
+	bool ipFound = itIP != mapIP.end();
 
-			if(playerFound && ipFound && clanFound)
-			{
-	// no doubt, this is the same guy
-	Player->Warnings = itName->second;
+	// not found
+	if (!playerFound || !ipFound)
+		return;
 
-	str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name,ip,clan match)",Player->Server()->ClientName(Player->GetCID()));
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-			}
-			else if(playerFound && clanFound)
-			{
-	// very likely, he got a new ip
-	Player->Warnings = itName->second;
+	// probably player already banned - increasing warning level
+	Player->Warnings = g_Config.m_RcdMaxWarnings / 2;
 
-	str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name,clan match)",Player->Server()->ClientName(Player->GetCID()));
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-			}
-			else if(playerFound)
-			{
-	// well, maybe he got a new ip
-	Player->Warnings = g_Config.m_RcdMaxWarnings - 2;
-
-	str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name match)",Player->Server()->ClientName(Player->GetCID()));
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-			}
-			else if(ipFound)
-			{
-	// time will show
- 	Player->Warnings = g_Config.m_RcdMaxWarnings / 2;
-
-	str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (ip match)",Player->Server()->ClientName(Player->GetCID()));
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-			}
+	if(playerFound && ipFound && clanFound) // no doubt, this is the same guy
+	{
+		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name, ip, clan match)",Player->Server()->ClientName(Player->GetCID()));
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	}
+	else if(playerFound && clanFound) // very likely, he got a new ip
+	{
+		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name, clan match)",Player->Server()->ClientName(Player->GetCID()));
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	}
+	else if(playerFound) // well, maybe he got a new ip
+	{
+		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name match)",Player->Server()->ClientName(Player->GetCID()));
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	}
+	else if(ipFound) // time will show
+	{
+		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (ip match)",Player->Server()->ClientName(Player->GetCID()));
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	}
 }
 
 void RajhCheatDetector::OnPlayerLeave(CPlayer * Player)
 {
-			 if(Player->Warnings >= g_Config.m_RcdMaxWarnings)
-			 {
-			std::string name = Player->Server()->ClientName(Player->GetCID());
-			std::string clan = Player->Server()->ClientClan(Player->GetCID());
+	if(Player->Warnings >= g_Config.m_RcdMaxWarnings)
+	{
+		std::string name = Player->Server()->ClientName(Player->GetCID());
+		std::string clan = Player->Server()->ClientClan(Player->GetCID());
 
-			Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
-			std::string ip = std::string(aBuf);
+		Player->Server()->GetClientAddr(Player->GetCID(), aBuf, sizeof(aBuf));
+		std::string ip = std::string(aBuf);
 
-			mapName[name] = Player->Warnings;
-			mapClan[clan] = Player->Warnings;
-			mapIP[ip] = Player->Warnings;
-			 }
+		mapName[name] = Player->Warnings;
+		mapClan[clan] = Player->Warnings;
+		mapIP[ip] = Player->Warnings;
+	}
 }
 
 void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
