@@ -157,20 +157,23 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim)
 	vec2 Target = vec2(CPlayer->m_LatestInput.m_TargetX, CPlayer->m_LatestInput.m_TargetY);
 	vec2 TargetPos = CPlayer->m_Pos + Target;
 
-	// Ignore if distance between target and player <= 50
-	// cl_mouse_max_distance <= 50 can cause false positives
-	if(distance(TargetPos, CPlayer->m_Pos) <= 50.f)
+	// Probably not aim-bot if distance between target and victim >= 8
+	// Ping may fake this
+	if(distance(TargetPos, CVictim->m_Pos) >= 8.f)
 		return false;
 
-	// Ping may fake this
-	if(distance(TargetPos, CVictim->m_Pos) < 8.f)
-	{
-		str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position",Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
+	// Ignore if distance between target and player <= 50
+	// cl_mouse_max_distance <= 50 can cause false positives
+	if(distance(TargetPos, CPlayer->m_Pos) <= 50.f) {
+		str_format(aBuf, sizeof(aBuf), "'%s' aimed at '%s' position from close distance, ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-		return true;
+		return false;
 	}
 
-	return false;
+	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
+	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+
+	return true;
 }
 
 bool RajhCheatDetector::CheckReflex(CPlayer * Player, int Victim)
