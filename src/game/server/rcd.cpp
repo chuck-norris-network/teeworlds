@@ -170,6 +170,14 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim)
 		return false;
 	}
 
+	// Ignore shoots at non-moving target
+	// Newbies can be accidentally banned for shooting afk players because of placing cursor on them directly.
+	if(CVictim->m_LatestInput.m_Direction == 0 && CVictim->m_LatestInput.m_Jump == 0) {
+		str_format(aBuf, sizeof(aBuf), "'%s' aimed at non-moving '%s', ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		return false;
+	}
+
 	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 
