@@ -36,8 +36,9 @@ void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 	if(Player->GetCID() == Victim)
 		return;
 
-	if(CheckInputPos(Player, Victim))
-		AddWarning(Player, 4);
+    warning_t out = 0;
+    if(CheckInputPos(Player, Victim, out))
+        AddWarning(Player, out);
 
 	if(CheckReflex(Player, Victim))
 		AddWarning(Player, 2);
@@ -108,6 +109,7 @@ void RajhCheatDetector::OnPlayerLeave(CPlayer * Player)
 	}
 }
 
+// amount may be zero; this indicates that there was strange behaviour that is worth to update Player->LastWarn, but worth enough to cause warning level go up
 void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 {
 	Player->Warnings += amount;
@@ -146,8 +148,10 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 	}
 }
 
-bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim)
+bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& warnLevelOut)
 {
+    const float WhatICallClose = 8.f;
+    
 	CCharacter *CPlayer;
 	CCharacter *CVictim;
 
@@ -157,9 +161,11 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim)
 	vec2 Target = vec2(CPlayer->m_LatestInput.m_TargetX, CPlayer->m_LatestInput.m_TargetY);
 	vec2 TargetPos = CPlayer->m_Pos + Target;
 
+    float DistanceAimToVictim = distance(TargetPos, CVictim->m_Pos);
+    
 	// Probably not aim-bot if distance between target and victim >= 8
 	// Ping may fake this
-	if(distance(TargetPos, CVictim->m_Pos) >= 8.f)
+	if(DistanceAimToVictim >= WhatICallClose)
 		return false;
 
 	// Ignore if distance between target and player <= 50
@@ -167,19 +173,38 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim)
 	if(distance(TargetPos, CPlayer->m_Pos) <= 50.f) {
 		str_format(aBuf, sizeof(aBuf), "'%s' aimed at '%s' position from close distance, ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-		return false;
+        
+        warnLevelOut = 0;
+		return true;
 	}
+    
+    /*float interpolatedMouseMaxDist = 50;
+    float aimDistance = distance(TargetPos, CPlayer->m_Pos);
+    if(interpolatedMouseMaxDist -2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist +2)
+    {
+      str_format(aBuf, sizeof(aBuf), "'%s' aimed at cl_mouse_max_distance +- 2, ignoring", Player->Server()->ClientName(Player->GetCID()));
+      Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+
+      warnLevelOut = 0;
+      return true;
+    }*/
 
 	// Ignore shoots at non-moving target
 	// Newbies can be accidentally banned for shooting afk players because of placing cursor on them directly.
 	if(CVictim->m_LatestInput.m_Direction == 0 && CVictim->m_LatestInput.m_Jump == 0) {
 		str_format(aBuf, sizeof(aBuf), "'%s' aimed at non-moving '%s', ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
-		return false;
+        
+        warnLevelOut = 0;
+		return true;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
+	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position (dist(TargetPos,Victim)==%f)", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim), DistanceAimToVictim);
 	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+
+    // if DistanceAimToVictim == 1, player will get 7 warnings
+    // if DistanceAimToVictim == 7, player will get 1 warning
+    warnLevelOut = WhatICallClose - DistanceAimToVictim;
 
 	return true;
 }
