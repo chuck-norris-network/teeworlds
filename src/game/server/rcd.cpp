@@ -168,7 +168,8 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	if(DistanceAimToVictim >= WhatICallClose)
 		return false;
 
-	// Ignore if distance between target and player <= 50
+    /* creates a dead zone at <= 50, uncomment that for now. if necessary will be superseeded by the check below
+    // Ignore if distance between target and player <= 50
 	// cl_mouse_max_distance <= 50 can cause false positives
 	if(distance(TargetPos, CPlayer->m_Pos) <= 50.f) {
 		str_format(aBuf, sizeof(aBuf), "'%s' aimed at '%s' position from close distance, ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
@@ -176,11 +177,12 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
         
         warnLevelOut = 0;
 		return true;
-	}
+	}*/
     
-    /*float interpolatedMouseMaxDist = 50;
+    /* This might become necessary in the future, see my explanation in PR
+    float interpolatedMouseMaxDist; // << TODO: somehow interpolate that value for every player
     float aimDistance = distance(TargetPos, CPlayer->m_Pos);
-    if(interpolatedMouseMaxDist -2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist +2)
+    if(interpolatedMouseMaxDist-2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist+2)
     {
       str_format(aBuf, sizeof(aBuf), "'%s' aimed at cl_mouse_max_distance +- 2, ignoring", Player->Server()->ClientName(Player->GetCID()));
       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
