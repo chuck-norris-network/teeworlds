@@ -179,10 +179,10 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 		return true;
 	}*/
     
-    /* This might become necessary in the future, see my explanation in PR
-    float interpolatedMouseMaxDist; // << TODO: somehow interpolate that value for every player
+    // This might become necessary in the future, see my explanation in PR
+    //float interpolatedMouseMaxDist; // << TODO: somehow interpolate that value for every player
     float aimDistance = distance(TargetPos, CPlayer->m_Pos);
-    if(interpolatedMouseMaxDist-2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist+2)
+    /*if(interpolatedMouseMaxDist-2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist+2)
     {
       str_format(aBuf, sizeof(aBuf), "'%s' aimed at cl_mouse_max_distance +- 2, ignoring", Player->Server()->ClientName(Player->GetCID()));
       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
@@ -201,7 +201,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 		return true;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position (dist(TargetPos,Victim)==%f)", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim), DistanceAimToVictim);
+	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position (dist(TargetPos,Victim)==%f) ; (dist(TargetPos,Player)==%f)", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim), DistanceAimToVictim, aimDistance);
 	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 
     // if DistanceAimToVictim == 1, player will get 7 warnings
