@@ -1279,8 +1279,7 @@ int CServer::Run()
 
 	m_NetServer.SetCallbacks(NewClientCallback, DelClientCallback, this);
 
-	if (m_Econ.Init(Console(), &m_ServerBan) != 0)
-		return -1;
+	m_Econ.Init(Console(), &m_ServerBan);
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "server name is '%s'", g_Config.m_SvName);
@@ -1721,7 +1720,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// run the server
 	dbg_msg("server", "starting...");
-	int RunReturn = pServer->Run();
+	pServer->Run();
 
 	// free
 	delete pServer;
@@ -1732,5 +1731,5 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pEngineMasterServer;
 	delete pStorage;
 	delete pConfig;
-	return RunReturn;
+	return 0;
 }
