@@ -60,7 +60,7 @@ void CEcon::ConLogout(IConsole::IResult *pResult, void *pUserData)
 		pThis->m_NetConsole.Drop(pThis->m_UserClientID, "Logout");
 }
 
-int CEcon::Init(IConsole *pConsole, CNetBan *pNetBan)
+void CEcon::Init(IConsole *pConsole, CNetBan *pNetBan)
 {
 	m_pConsole = pConsole;
 
@@ -71,7 +71,7 @@ int CEcon::Init(IConsole *pConsole, CNetBan *pNetBan)
 	m_UserClientID = -1;
 
 	if(g_Config.m_EcPort == 0 || g_Config.m_EcPassword[0] == 0)
-		return 0;
+		return;
 
 	NETADDR BindAddr;
 	if(g_Config.m_EcBindaddr[0] && net_host_lookup(g_Config.m_EcBindaddr, &BindAddr, NETTYPE_ALL) == 0)
@@ -87,24 +87,21 @@ int CEcon::Init(IConsole *pConsole, CNetBan *pNetBan)
 		BindAddr.port = g_Config.m_EcPort;
 	}
 
-	if (!m_NetConsole.Open(BindAddr, pNetBan, 0))
+	if(m_NetConsole.Open(BindAddr, pNetBan, 0))
 	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD,"econ", "couldn't open socket. port might already be in use");
-		return -1;
+		m_NetConsole.SetCallbacks(NewClientCallback, DelClientCallback, this);
+		m_Ready = true;
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "bound to %s:%d", g_Config.m_EcBindaddr, g_Config.m_EcPort);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD,"econ", aBuf);
+
+		Console()->Chain("ec_output_level", ConchainEconOutputLevelUpdate, this);
+		m_PrintCBIndex = Console()->RegisterPrintCallback(g_Config.m_EcOutputLevel, SendLineCB, this);
+
+		Console()->Register("logout", "", CFGFLAG_ECON, ConLogout, this, "Logout of econ");
 	}
-
-	m_NetConsole.SetCallbacks(NewClientCallback, DelClientCallback, this);
-	m_Ready = true;
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "bound to %s:%d", g_Config.m_EcBindaddr, g_Config.m_EcPort);
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD,"econ", aBuf);
-
-	Console()->Chain("ec_output_level", ConchainEconOutputLevelUpdate, this);
-	m_PrintCBIndex = Console()->RegisterPrintCallback(g_Config.m_EcOutputLevel, SendLineCB, this);
-
-	Console()->Register("logout", "", CFGFLAG_ECON, ConLogout, this, "Logout of econ");
-
-	return 0;
+	else
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD,"econ", "couldn't open socket. port might already be in use");
 }
 
 void CEcon::Update()
