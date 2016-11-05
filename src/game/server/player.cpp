@@ -301,3 +301,25 @@ void CPlayer::TryRespawn()
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos);
 }
+
+void CPlayer::updateInterpolatedMouseMaxDist(float aimDist)
+{
+    const int Timeout = 3 /*seconds*/;
+    
+    if(this->MouseMaxDist < aimDist)
+    {
+        this->MouseMaxDist = aimDist;
+    }
+    
+    if(abs(this->MouseMaxDist - aimDist) <= 1.0)
+    {
+        // ok, our value still seems to be up to date
+        this->LastMouseMaxDistTick = Server()->Tick();
+    }
+    
+    if((Server()->Tick() - this->LastMouseMaxDistTick) > Server()->TickSpeed() * Timeout)
+    {
+        // reset
+        this->MouseMaxDist = 0.0f;
+    }
+}
