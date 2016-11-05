@@ -180,16 +180,17 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	}*/
     
     // This might become necessary in the future, see my explanation in PR
-    //float interpolatedMouseMaxDist; // << TODO: somehow interpolate that value for every player
+    float interpolatedMouseMaxDist = CPlayer->getInterpolatedMouseMaxDist();
     float aimDistance = distance(TargetPos, CPlayer->m_Pos);
-    /*if(interpolatedMouseMaxDist-2 <= aimDistance && aimDistance <= interpolatedMouseMaxDist+2)
+    const int8_t Tolerance = 2;
+    if(interpolatedMouseMaxDist-Tolerance <= aimDistance && aimDistance <= interpolatedMouseMaxDist+Tolerance)
     {
-      str_format(aBuf, sizeof(aBuf), "'%s' aimed at cl_mouse_max_distance +- 2, ignoring", Player->Server()->ClientName(Player->GetCID()));
+      str_format(aBuf, sizeof(aBuf), "'%s' aimed at mouse_max_dist +- %d, ignoring (cl_mouse_max_distance == %f)", Player->Server()->ClientName(Player->GetCID()), Tolerance, interpolatedMouseMaxDist);
       Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 
       warnLevelOut = 0;
       return true;
-    }*/
+    }
 
 	// Ignore shoots at non-moving target
 	// Newbies can be accidentally banned for shooting afk players because of placing cursor on them directly.
