@@ -29,6 +29,18 @@ void RajhCheatDetector::OnFire(CPlayer * Player)
 {
 	if(CheckFastFire(Player))
 		AddWarning(Player, 1);
+    
+    
+    CCharacter *CPlayer;
+    if(!(CPlayer = Player->GameServer()->GetPlayerChar(Player->GetCID())))
+            return;
+
+    vec2 Target = vec2(CPlayer->m_LatestInput.m_TargetX, CPlayer->m_LatestInput.m_TargetY);
+    vec2 TargetPos = CPlayer->m_Pos + Target;
+
+    // on every input, store and if necessary update CPlayers interpolated cl_mouse_max_distance
+    float aimDistance = distance(TargetPos, CPlayer->m_Pos);
+    Player->updateInterpolatedMouseMaxDist(aimDistance);
 }
 
 void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
@@ -180,7 +192,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	}*/
     
     // This might become necessary in the future, see my explanation in PR
-    float interpolatedMouseMaxDist = CPlayer->getInterpolatedMouseMaxDist();
+    float interpolatedMouseMaxDist = Player->MouseMaxDist;
     float aimDistance = distance(TargetPos, CPlayer->m_Pos);
     const int8_t Tolerance = 2;
     if(interpolatedMouseMaxDist-Tolerance <= aimDistance && aimDistance <= interpolatedMouseMaxDist+Tolerance)
