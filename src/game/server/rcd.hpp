@@ -1,6 +1,8 @@
 #ifndef GAME_SERVER_RCD_H
 #define GAME_SERVER_RCD_H
 
+typedef int warning_t;
+
 class RajhCheatDetector
 {
 public:
@@ -15,7 +17,7 @@ private:
        static void CheckWarnings(CPlayer * Player);
        static void AddWarning(CPlayer * Player, int amount = 1);
        static bool CheckFastChange(CPlayer * Player);
-       static bool CheckInputPos(CPlayer * Player, int Victim);
+       static bool CheckInputPos(CPlayer * Player, int Victim, warning_t& warnLevelOut);
        static bool CheckReflex(CPlayer * Player, int Victim);
        static bool CheckFastFire(CPlayer * Player);
 };

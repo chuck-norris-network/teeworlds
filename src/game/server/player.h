@@ -99,10 +99,24 @@ public:
 	} m_Latency;
 
 	// RajhCheatDetector
-	int Warnings;
-	int LastWarn;
-	std::valarray<int> LastFireTick;
-	unsigned int LastFireIdx;
+        
+    // no. of warnings this player received
+    int Warnings;
+
+    // contains server->Tick() when player received past warning
+    int LastWarn;
+
+    // array of ticks, add one tick at LastFireIdx whenever a player shoots
+    std::valarray<int> LastFireTick;
+    unsigned int LastFireIdx;
+
+    // holds the maximum distance a player aimed away from himself
+    float MouseMaxDist;
+
+    // holds server->Tick() of the last time this player pointed at MouseMaxDist
+    int LastMouseMaxDistTick;
+
+    void updateInterpolatedMouseMaxDist(float aimDist);
 
 private:
 	CCharacter *m_pCharacter;
