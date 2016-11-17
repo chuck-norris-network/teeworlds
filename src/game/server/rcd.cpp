@@ -124,10 +124,18 @@ void RajhCheatDetector::OnPlayerLeave(CPlayer * Player)
 // amount may be zero; this indicates that there was strange behaviour that is worth to update Player->LastWarn, but worth enough to cause warning level go up
 void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 {
-	Player->Warnings += amount;
-	Player->LastWarn = Player->Server()->Tick();
+    if(Player->Server()->Tick() - Player->LastWarn < Player->Server()->TickSpeed() * 0.2)
+    {
+        str_format(aBuf, sizeof(aBuf), "'%s' got last warnings less than 200ms ago, ignoring amount of %d", Player->Server()->ClientName(Player->GetCID()), amount);
+    }
+    else
+    {
+        Player->Warnings += amount;
+        Player->LastWarn = Player->Server()->Tick();
 
-	str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
+        str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
+    }
+    
 	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
 }
 
