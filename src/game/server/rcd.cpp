@@ -86,22 +86,22 @@ void RajhCheatDetector::OnPlayerEnter(CPlayer * Player)
 	if(playerFound && ipFound && clanFound) // no doubt, this is the same guy
 	{
 		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name, ip, clan match)",Player->Server()->ClientName(Player->GetCID()));
-		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rcd", aBuf);
 	}
 	else if(playerFound && clanFound) // very likely, he got a new ip
 	{
 		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name, clan match)",Player->Server()->ClientName(Player->GetCID()));
-		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rcd", aBuf);
 	}
 	else if(playerFound) // well, maybe he got a new ip
 	{
 		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (name match)",Player->Server()->ClientName(Player->GetCID()));
-		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rcd", aBuf);
 	}
 	else if(ipFound) // time will show
 	{
 		str_format(aBuf, sizeof(aBuf), "Welcome back: '%s' (ip match)",Player->Server()->ClientName(Player->GetCID()));
-		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rcd", aBuf);
 	}
 }
 
@@ -124,11 +124,19 @@ void RajhCheatDetector::OnPlayerLeave(CPlayer * Player)
 // amount may be zero; this indicates that there was strange behaviour that is worth to update Player->LastWarn, but worth enough to cause warning level go up
 void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 {
-	Player->Warnings += amount;
-	Player->LastWarn = Player->Server()->Tick();
+    if(Player->Server()->Tick() - Player->LastWarn < Player->Server()->TickSpeed() * 0.2)
+    {
+        str_format(aBuf, sizeof(aBuf), "'%s' got last warnings less than 200ms ago, ignoring amount of %d", Player->Server()->ClientName(Player->GetCID()), amount);
+    }
+    else
+    {
+        Player->Warnings += amount;
+        Player->LastWarn = Player->Server()->Tick();
 
-	str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+        str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
+    }
+    
+	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 }
 
 void RajhCheatDetector::CheckWarnings(CPlayer * Player)
@@ -185,7 +193,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	// cl_mouse_max_distance <= 50 can cause false positives
 	if(distance(TargetPos, CPlayer->m_Pos) <= 50.f) {
 		str_format(aBuf, sizeof(aBuf), "'%s' aimed at '%s' position from close distance, ignoring", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
-		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+		Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 
 		warnLevelOut = 0;
 		return true;
@@ -198,7 +206,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	if(interpolatedMouseMaxDist-Tolerance <= aimDistance && aimDistance <= interpolatedMouseMaxDist+Tolerance)
 	{
 	  str_format(aBuf, sizeof(aBuf), "'%s' aimed at mouse_max_dist +- %d, ignoring (cl_mouse_max_distance == %f)", Player->Server()->ClientName(Player->GetCID()), Tolerance, interpolatedMouseMaxDist);
-	  Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	  Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 
 	  warnLevelOut = 0;
 	  return true;
@@ -215,7 +223,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	}
 
 	str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' position (dist(TargetPos,Victim)==%f) ; (dist(TargetPos,Player)==%f)", Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim), DistanceAimToVictim, aimDistance);
-	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 
 	// if DistanceAimToVictim == 1, player will get 7 warnings
 	// if DistanceAimToVictim == 7, player will get 1 warning
@@ -236,7 +244,7 @@ bool RajhCheatDetector::CheckReflex(CPlayer * Player, int Victim)
 			 {
 				 str_format(aBuf, sizeof(aBuf), "'%s' aimed exactly at '%s' at max range",Player->Server()->ClientName(Player->GetCID()), Player->Server()->ClientName(Victim));
 // 				 Player->GameServer()->SendChat(-1,CGameContext::CHAT_ALL,aBuf);
-				 Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+				 Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 				 return true;
 			 }
 			 return false;
@@ -288,7 +296,7 @@ bool RajhCheatDetector::CheckFastFire(CPlayer * Player)
 		if(std::abs(Player->LastFireTick.sum()) <= 1)
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' fires way too regularly",Player->Server()->ClientName(Player->GetCID()));
-			Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "rcd", aBuf);
+			Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 			return true;
 		}
 
