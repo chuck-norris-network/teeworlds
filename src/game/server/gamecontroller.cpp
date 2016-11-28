@@ -546,12 +546,12 @@ void IGameController::Tick()
 						break;
 					case 1:
 						{
-							// move player to spectator if the reserved slots aren't filled yet, kick him otherwise
+							// kick player if the maximum number of spectator slots for inactive players reached, move to spectator otherwise
 							int Spectators = 0;
 							for(int j = 0; j < MAX_CLIENTS; ++j)
 								if(GameServer()->m_apPlayers[j] && GameServer()->m_apPlayers[j]->GetTeam() == TEAM_SPECTATORS)
 									++Spectators;
-							if(Spectators >= g_Config.m_SvSpectatorSlots)
+							if(Spectators >= g_Config.m_SvMaxInactiveSpectators)
 								Server()->Kick(i, "Kicked for inactivity");
 							else
 								GameServer()->m_apPlayers[i]->SetTeam(TEAM_SPECTATORS);
