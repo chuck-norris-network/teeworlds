@@ -288,7 +288,7 @@ CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
 	m_MapReload = 0;
 
 	m_RconClientID = IServer::RCON_CID_SERV;
-	m_RconAuthLevel = AUTHED_ADMIN;
+	m_RconAuthLevel = AUTHED_MOD;
 
 	Init();
 }
@@ -396,7 +396,7 @@ void CServer::Kick(int ClientID, const char *pReason)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "you can't kick yourself");
  		return;
 	}
-	else if(m_aClients[ClientID].m_Authed > m_RconAuthLevel)
+	else if(m_aClients[ClientID].m_Authed >= m_RconAuthLevel)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "kick command denied");
  		return;
@@ -977,7 +977,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				Console()->ExecuteLineFlag(pCmd, CFGFLAG_SERVER);
 				Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 				m_RconClientID = IServer::RCON_CID_SERV;
-				m_RconAuthLevel = AUTHED_ADMIN;
+				m_RconAuthLevel = AUTHED_MOD;
 			}
 		}
 		else if(Msg == NETMSG_RCON_AUTH)
