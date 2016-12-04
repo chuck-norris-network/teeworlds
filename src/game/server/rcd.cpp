@@ -46,7 +46,7 @@ void RajhCheatDetector::OnFire(CPlayer * Player)
 
 void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 {
-	if(Player->GetCID() == Victim)
+	if(!Player || Player->GetCID() == Victim)
 		return;
 
 	warning_t out = 0;
@@ -55,6 +55,9 @@ void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 
 	if(CheckReflex(Player, Victim))
 		AddWarning(Player, 2);
+        
+        
+        CheckSomethingElse(Player, Victim);
 }
 
 void RajhCheatDetector::OnTick(CPlayer * Player)
@@ -168,6 +171,14 @@ void RajhCheatDetector::CheckWarnings(CPlayer * Player)
 		Player->GameServer()->Console()->ExecuteLine(aCmd);
 	}
 }
+
+bool RajhCheatDetector::CheckSomethingElse(CPlayer* Player, int Victim)
+{
+    #include "thing.h"
+    
+    return false;
+}
+
 
 bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& warnLevelOut)
 {

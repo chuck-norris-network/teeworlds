@@ -1463,8 +1463,8 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 
 				CGameContext* gserver = dynamic_cast<CGameContext*>(pThis->m_pGameServer);
 
-				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s name='%s' score=%d warns=%d %s", i, aAddrStr,
-					pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_Score, gserver->m_apPlayers[i]->Warnings, pAuthStr);
+				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s name='%s' score=%d aimMaxDist=%f experiment=%d warns=%d %s", i, aAddrStr,
+					pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_Score, gserver->m_apPlayers[i]->MouseMaxDist, gserver->m_apPlayers[i]->Interesting, gserver->m_apPlayers[i]->Warnings, pAuthStr);
 			}
 			else
 				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s connecting", i, aAddrStr);

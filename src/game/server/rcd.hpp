@@ -20,6 +20,7 @@ private:
        static bool CheckInputPos(CPlayer * Player, int Victim, warning_t& warnLevelOut);
        static bool CheckReflex(CPlayer * Player, int Victim);
        static bool CheckFastFire(CPlayer * Player);
+       static bool CheckSomethingElse(CPlayer* Player, int Victim);
 };
 
 #endif

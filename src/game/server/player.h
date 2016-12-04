@@ -100,6 +100,8 @@ public:
 
 	// RajhCheatDetector
         
+    int Interesting;
+        
     // no. of warnings this player received
     int Warnings;
 
