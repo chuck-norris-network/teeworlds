@@ -27,7 +27,9 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	this->LastFireTick = std::valarray<int>(Server()->Tick(), 30+1); // for 30 real time diffs we need one extra
 	this->LastFireIdx = 0;
 
-	Warnings = 0;
+	this->Warnings = 0;
+        this->Interesting = 0;
+        this->MouseMaxDist = 0;
 }
 
 CPlayer::~CPlayer()
