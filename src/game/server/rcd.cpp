@@ -45,6 +45,9 @@ void RajhCheatDetector::OnFire(CPlayer * Player)
 
 void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 {
+	if(Player == 0)
+		return;
+
 	if(Player->GetCID() == Victim)
 		return;
 
@@ -135,7 +138,7 @@ void RajhCheatDetector::AddWarning(CPlayer * Player, int amount)
 
         str_format(aBuf, sizeof(aBuf), "'%s' warnings: %d", Player->Server()->ClientName(Player->GetCID()), Player->Warnings);
     }
-    
+
 	Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
 }
 
