@@ -214,7 +214,7 @@ bool RajhCheatDetector::CheckInputPos(CPlayer *Player, int Victim, warning_t& wa
 	// This might become necessary in the future, see my explanation in PR
 	float interpolatedMouseMaxDist = Player->MouseMaxDist;
 	float aimDistance = distance(TargetPos, CPlayer->m_Pos);
-	const int8_t Tolerance = 2;
+	const int Tolerance = 2;
 	if(interpolatedMouseMaxDist-Tolerance <= aimDistance && aimDistance <= interpolatedMouseMaxDist+Tolerance)
 	{
 	  str_format(aBuf, sizeof(aBuf), "'%s' aimed at mouse_max_dist +- %d, ignoring (cl_mouse_max_distance == %f)", Player->Server()->ClientName(Player->GetCID()), Tolerance, interpolatedMouseMaxDist);
