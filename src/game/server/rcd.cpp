@@ -28,6 +28,10 @@ void RajhCheatDetector::ForgetAllClients()
 // thus check real fire with TestFire()
 void RajhCheatDetector::OnFire(CPlayer * Player)
 {
+	if(Player == 0)
+		return;
+
+
 	// TODO: Improve regular fire detection #7
 	if(CheckFastFire(Player))
 		AddWarning(Player, 0);
@@ -62,6 +66,9 @@ void RajhCheatDetector::OnHit(CPlayer * Player, int Victim)
 
 void RajhCheatDetector::OnTick(CPlayer * Player)
 {
+	if(Player == 0)
+		return;
+
 	CheckWarnings(Player);
 }
 
