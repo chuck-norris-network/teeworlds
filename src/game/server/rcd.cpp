@@ -8,6 +8,7 @@
 #include "rcd.hpp"
 
 #include <string>
+#include <cstring>
 #include <map>
 
 std::map<std::string, int> mapName;
@@ -289,17 +290,23 @@ bool RajhCheatDetector::CheckFastFire(CPlayer * Player)
 		unsigned int last = Player->LastFireTick.size()-1;
 		Player->LastFireTick[last] = Player->Server()->Tick() - Player->LastFireTick[last];
 
-		// derive again to get the change of the diffs
-		for(unsigned int i=0; i<Player->LastFireTick.size()-1; i++)
+		if(std::abs(Player->LastFireTick.sum()) <= 2 * Player->LastFireTick.size())
 		{
-			Player->LastFireTick[i] = Player->LastFireTick[i+1] - Player->LastFireTick[i];
-		}
-		Player->LastFireTick[last] = 0;
-
-		if(std::abs(Player->LastFireTick.sum()) <= 1)
-		{
-			str_format(aBuf, sizeof(aBuf), "'%s' fires way too regularly",Player->Server()->ClientName(Player->GetCID()));
+			str_format(aBuf, sizeof(aBuf), "'%s' fires way too fast",Player->Server()->ClientName(Player->GetCID()));
 			Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
+                        
+                        str_format(aBuf, sizeof(aBuf), "lastfiretick array for player id %d", Player->GetCID());
+                        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
+                        
+                        aBuf[0] = '\0';                        
+                        char digBuf[10];   
+                        for (unsigned int i=0; i<Player->LastFireTick.size(); i++)
+                        {
+                            str_format(digBuf, sizeof(digBuf), "%d ", Player->LastFireTick[i]);
+                            strncat(aBuf, digBuf, 9);
+                        }
+                        Player->GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "rcd", aBuf);
+                        
 			return true;
 		}
 
