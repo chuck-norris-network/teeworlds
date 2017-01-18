@@ -668,7 +668,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			int64 Now = Server()->Tick();
 			pPlayer->m_LastVoteTry = Now;
-			if(pPlayer->GetTeam() == TEAM_SPECTATORS)
+			if(pPlayer->GetTeam() == TEAM_SPECTATORS && !Server()->IsAuthed(ClientID))
 			{
 				SendChatTarget(ClientID, "Spectators aren't allowed to start a vote.");
 				return;
