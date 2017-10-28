@@ -18,7 +18,7 @@ struct CDnsBlQuery
 enum
 {
 	MAX_BL_SERVERS=16,
-	MAX_QUEUE_LENGTH=64,
+	MAX_QUEUE_LENGTH=128,
 };
 
 class CDnsBl
