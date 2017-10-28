@@ -151,9 +151,6 @@ int CNetServer::Recv(CNetChunk *pChunk)
 					// client that wants to connect
 					if(!Found)
 					{
-						// check DNSBL only for new connections
-						DnsBl()->CheckAndBan(&Addr);
-
 						// only allow a specific number of players with the same ip
 						NETADDR ThisAddr = Addr, OtherAddr;
 						int FoundAddr = 1;
@@ -189,7 +186,12 @@ int CNetServer::Recv(CNetChunk *pChunk)
 							}
 						}
 
-						if(!Found)
+						if(Found)
+						{
+							// check DNS blacklist only after checking other conditions
+							DnsBl()->CheckAndBan(&Addr);
+						}
+						else
 						{
 							const char FullMsg[] = "This server is full";
 							CNetBase::SendControlMsg(m_Socket, &Addr, 0, NET_CTRLMSG_CLOSE, FullMsg, sizeof(FullMsg));

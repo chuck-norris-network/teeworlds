@@ -179,7 +179,7 @@ void CDnsBl::CheckAndBan(NETADDR *pAddr)
 		if (((m_QueueHead + 1) % MAX_QUEUE_LENGTH) == m_QueueTail) {
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "can't resolve %s: queue is full", s_Query.m_Query);
-			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "dnsbl", aBuf);
 			continue;
 		}
 
