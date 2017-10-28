@@ -27,7 +27,9 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	this->LastFireTick = std::valarray<int>(Server()->Tick(), 30+1); // for 30 real time diffs we need one extra
 	this->LastFireIdx = 0;
 
-	Warnings = 0;
+	this->Warnings = 0;
+        this->Interesting = 0;
+        this->MouseMaxDist = 0;
 }
 
 CPlayer::~CPlayer()
@@ -212,6 +214,9 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 	m_PlayerFlags = NewInput->m_PlayerFlags;
 
+    if (m_PlayerFlags>>4 > 0)
+    	dbg_msg("rcd", "Detected non vanilla client with custom flags. m_PlayerFlags = %d; m_PlayerFlags>>4 = %d", m_PlayerFlags, m_PlayerFlags>>4);
+
 	if(m_pCharacter)
 		m_pCharacter->OnDirectInput(NewInput);
 
@@ -304,19 +309,19 @@ void CPlayer::TryRespawn()
 
 void CPlayer::updateInterpolatedMouseMaxDist(float aimDist)
 {
-    const int Timeout = 3 /*seconds*/;
-    
+    const int Timeout = 10 /*seconds*/;
+
     if(this->MouseMaxDist < aimDist)
     {
         this->MouseMaxDist = aimDist;
     }
-    
+
     if(abs(this->MouseMaxDist - aimDist) <= 1.0)
     {
         // ok, our value still seems to be up to date
         this->LastMouseMaxDistTick = Server()->Tick();
     }
-    
+
     if((Server()->Tick() - this->LastMouseMaxDistTick) > Server()->TickSpeed() * Timeout)
     {
         // reset
